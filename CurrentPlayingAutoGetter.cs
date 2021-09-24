@@ -10,11 +10,11 @@ namespace TitalyverMessengerForSpotify
 {
     public class CurrentPlayingAutoGetter
     {
-        private readonly Spotify Spotify;
+        private readonly SpotifyClient Spotify;
         public delegate void GetCallback(SpotifyAPI.Web.CurrentlyPlaying playing);
         private readonly GetCallback Callback;
 
-        public CurrentPlayingAutoGetter(Spotify spotify, GetCallback callback)
+        public CurrentPlayingAutoGetter(SpotifyClient spotify, GetCallback callback)
         {
             Spotify = spotify;
             Callback = callback;
@@ -63,7 +63,7 @@ namespace TitalyverMessengerForSpotify
                      {
                          break;
                      }
-                     CurrentlyPlaying playing = Spotify.SpotifyClient.Player.GetCurrentlyPlaying(request).Result;
+                     CurrentlyPlaying playing = Spotify.Player.GetCurrentlyPlaying(request).Result;
                      Callback(playing);
 
                      if (playing == null)

@@ -29,7 +29,6 @@ namespace TitalyverMessengerForSpotify
 
         private CurrentPlayingAutoGetter AutoGetter;
 
-        private PlayerCurrentlyPlayingRequest Request = new() { Market = "from_token" };
 
     public Form1()
         {
@@ -40,7 +39,6 @@ namespace TitalyverMessengerForSpotify
         {
             if (!Messenger.Initialize())
             {
-                Messenger = null;
                 Close();
                 return;
             }
@@ -51,7 +49,7 @@ namespace TitalyverMessengerForSpotify
                 this.Close();
                 return;
             }
-            AutoGetter = new(Spotify, GetCallback);
+            AutoGetter = new(Spotify.SpotifyClient, GetCallback);
             AutoGetter.Start(-1);
         }
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
@@ -84,6 +82,8 @@ namespace TitalyverMessengerForSpotify
 
         private void GetCallback(CurrentlyPlaying playing)
         {
+            if (!Messenger.IsValid())
+                return;
             if (playing == null)
             {
                 if (no_playing == null)

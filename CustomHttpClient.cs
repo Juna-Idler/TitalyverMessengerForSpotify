@@ -18,7 +18,7 @@ namespace TitalyverMessengerForSpotify
     {
         public static string AcceptLanguage = "ja";
 
-        private readonly HttpMessageHandler? _httpMessageHandler;
+        private readonly HttpMessageHandler _httpMessageHandler;
         private readonly HttpClient _httpClient;
 
         public CustomHttpClient()
