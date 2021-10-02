@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
-
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 using SpotifyAPI.Web;
 
@@ -13,6 +13,11 @@ namespace TitalyverMessengerForSpotify
         private readonly SpotifyClient Spotify;
         public delegate void GetCallback(SpotifyAPI.Web.CurrentlyPlaying playing);
         private readonly GetCallback Callback;
+
+        private Stopwatch Timer = new();
+        public int Wait { get; private set; }
+
+        public int RemainMs => IsLooping ? Wait - (int)Timer.ElapsedMilliseconds : -1;
 
         public CurrentPlayingAutoGetter(SpotifyClient spotify, GetCallback callback)
         {
@@ -52,6 +57,8 @@ namespace TitalyverMessengerForSpotify
                  {
                      try
                      {
+                         Wait = wait;
+                         Timer.Restart();
                          await Task.Delay(wait, Cancellation.Token);
                      }
                      catch (TaskCanceledException)
@@ -82,11 +89,12 @@ namespace TitalyverMessengerForSpotify
                      }
                      else
                      {
-                         wait = 30 * 1000;
+                         wait = 60 * 1000;
                      }
-                     wait = Math.Min(wait, 30 * 1000);
+                     wait = Math.Min(wait, 60 * 1000);
                      wait = Math.Max(wait, 1000);
                  }
+                 Timer.Stop();
              });
         }
     }

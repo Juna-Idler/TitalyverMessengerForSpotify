@@ -50,7 +50,7 @@ namespace TitalyverMessengerForSpotify
                 return;
             }
             AutoGetter = new(Spotify.SpotifyClient, GetCallback);
-            AutoGetter.Start(-1);
+            timer1.Start();
         }
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
@@ -88,10 +88,10 @@ namespace TitalyverMessengerForSpotify
             {
                 if (no_playing == null)
                 {
-                    MetaData data = new("no playing", new string[] { "Spotify" }, "");
+                    MetaData data = new("no playing", new string[] { "Spotify" }, "",0);
                     no_playing = JsonSerializer.SerializeToUtf8Bytes<MetaData>(data);
                 }
-                Messenger.Update(ITitalyverReceiver.EnumPlaybackEvent.Stop, 0, no_playing);
+                Messenger.Update(EnumPlaybackEvent.Stop, 0, no_playing);
                 Invoke((MethodInvoker)(() =>
                 {
                     textBox1.Text = "No playing";
@@ -103,10 +103,10 @@ namespace TitalyverMessengerForSpotify
             {
                 if (ad == null)
                 {
-                    MetaData data = new("ad", new string[] { "Spotify" }, "Spotify");
+                    MetaData data = new("ad", new string[] { "Spotify" }, "Spotify",0);
                     ad = JsonSerializer.SerializeToUtf8Bytes<MetaData>(data);
                 }
-                Messenger.Update(ITitalyverReceiver.EnumPlaybackEvent.SeekStop, 0, ad);
+                Messenger.Update(EnumPlaybackEvent.SeekStop, 0, ad);
                 Invoke((MethodInvoker)(() =>
                 {
                     textBox1.Text = "広告再生中 これの再生時間を取る方法なんかないのか？";
@@ -116,7 +116,7 @@ namespace TitalyverMessengerForSpotify
 
             if (playing.Item is FullTrack track)
             {
-                ITitalyverReceiver.EnumPlaybackEvent playbackEvent = playing.IsPlaying ? ITitalyverReceiver.EnumPlaybackEvent.SeekPlay : ITitalyverReceiver.EnumPlaybackEvent.SeekStop;
+                EnumPlaybackEvent playbackEvent = playing.IsPlaying ? EnumPlaybackEvent.SeekPlay : EnumPlaybackEvent.SeekStop;
 
                 if (LastTrack == null || track.Id != LastTrack.Id)
                 {
@@ -143,5 +143,9 @@ namespace TitalyverMessengerForSpotify
             return;
         }
 
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            label_Countdown.Text = $"Next:{AutoGetter.RemainMs / 1000.0}";
+        }
     }
 }

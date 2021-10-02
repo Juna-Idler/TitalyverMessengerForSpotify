@@ -29,15 +29,18 @@ namespace TitalyverMessengerForSpotify
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.ButtonGetCurrentPlaying = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label_Countdown = new System.Windows.Forms.Label();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // ButtonGetCurrentPlaying
             // 
             this.ButtonGetCurrentPlaying.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.ButtonGetCurrentPlaying.Location = new System.Drawing.Point(127, 166);
+            this.ButtonGetCurrentPlaying.Location = new System.Drawing.Point(12, 165);
             this.ButtonGetCurrentPlaying.Name = "ButtonGetCurrentPlaying";
             this.ButtonGetCurrentPlaying.Size = new System.Drawing.Size(215, 58);
             this.ButtonGetCurrentPlaying.TabIndex = 0;
@@ -57,11 +60,26 @@ namespace TitalyverMessengerForSpotify
             this.textBox1.Size = new System.Drawing.Size(431, 147);
             this.textBox1.TabIndex = 1;
             // 
+            // label_Countdown
+            // 
+            this.label_Countdown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_Countdown.AutoSize = true;
+            this.label_Countdown.Location = new System.Drawing.Point(375, 208);
+            this.label_Countdown.Name = "label_Countdown";
+            this.label_Countdown.Size = new System.Drawing.Size(68, 15);
+            this.label_Countdown.TabIndex = 2;
+            this.label_Countdown.Text = "Next:30.000";
+            // 
+            // timer1
+            // 
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(455, 235);
+            this.Controls.Add(this.label_Countdown);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.ButtonGetCurrentPlaying);
             this.Name = "Form1";
@@ -77,6 +95,8 @@ namespace TitalyverMessengerForSpotify
 
         private System.Windows.Forms.Button ButtonGetCurrentPlaying;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label_Countdown;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 
