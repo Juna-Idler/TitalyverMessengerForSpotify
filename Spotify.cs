@@ -19,7 +19,7 @@ namespace TitalyverMessengerForSpotify
 
         public SpotifyClient SpotifyClient { get; private set; }
 
-        public static async Task<Spotify> Create(bool authorization = false,int millisecondsTimeout = -1)
+        public static Spotify Create(bool authorization = false,int millisecondsTimeout = -1)
         {
             if (File.Exists(CredentialsPath) && authorization == false)
             {
@@ -37,7 +37,7 @@ namespace TitalyverMessengerForSpotify
             }
             else
             {
-                using ManualResetEventSlim manualResetEvent = new();
+                using CancellationTokenSource Cancellation = new();
                 using EmbedIOAuthServer _server = new(new Uri("http://localhost:5000/callback"), 5000);
 
                 PKCETokenResponse token = null;
@@ -57,10 +57,10 @@ namespace TitalyverMessengerForSpotify
                     }
                     finally
                     {
-                        manualResetEvent.Set();
+                        Cancellation.Cancel();
                     }
                 };
-                await _server.Start();
+                _server.Start().Wait();
 
                 var request = new LoginRequest(_server.BaseUri, clientId, LoginRequest.ResponseType.Code)
                 {
@@ -76,13 +76,18 @@ namespace TitalyverMessengerForSpotify
                 try
                 {
                     BrowserUtil.Open(uri);
-                    return await Task.Run(() =>
+                    try
                     {
-                        manualResetEvent.Wait(millisecondsTimeout);
-                        return (token != null) ? Create(token) : null;
-                    });
+                        Task.Delay(millisecondsTimeout, Cancellation.Token).Wait();
+                    }
+                    catch (AggregateException e)
+                    {
+                        if (e.InnerException is not TaskCanceledException)
+                            throw e.InnerException;
+                    }
+                    return (token != null) ? Create(token) : null;
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     return null;
                 }
