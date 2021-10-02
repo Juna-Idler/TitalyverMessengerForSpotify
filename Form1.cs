@@ -43,7 +43,7 @@ namespace TitalyverMessengerForSpotify
                 return;
             }
 
-            Spotify = Spotify.Create(false, 60000).Result;
+            Spotify = Spotify.Create(false, 60000);
             if (Spotify == null)
             {
                 this.Close();
@@ -86,6 +86,7 @@ namespace TitalyverMessengerForSpotify
                 return;
             if (playing == null)
             {
+                LastTrack = null;
                 if (no_playing == null)
                 {
                     MetaData data = new("no playing", new string[] { "Spotify" }, "",0);
@@ -101,6 +102,7 @@ namespace TitalyverMessengerForSpotify
 
             if (playing.CurrentlyPlayingType == "ad")
             {
+                LastTrack = null;
                 if (ad == null)
                 {
                     MetaData data = new("ad", new string[] { "Spotify" }, "Spotify",0);
