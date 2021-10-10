@@ -29,8 +29,11 @@ namespace TitalyverMessengerForSpotify
 
         private CurrentPlayingAutoGetter AutoGetter;
 
+        private long FirstLagTime = -1000;
+        private long TimeOffset = 0;
 
-    public Form1()
+
+        public Form1()
         {
             InitializeComponent();
         }
@@ -79,6 +82,7 @@ namespace TitalyverMessengerForSpotify
         static byte[] ad = null;
 
         private FullTrack LastTrack = null;
+        private long TrackStartTimeStamp = 0;
 
         private void GetCallback(CurrentlyPlaying playing)
         {
@@ -122,9 +126,17 @@ namespace TitalyverMessengerForSpotify
 
                 if (LastTrack == null || track.Id != LastTrack.Id)
                 {
+                    TrackStartTimeStamp = playing.Timestamp;//Unix TimeStamp(ms)
+
+                    long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                    long progress = playing.ProgressMs.Value;
+
+                    long offset = (TrackStartTimeStamp + progress - now);
+                    TimeOffset = FirstLagTime;
+
                     MetaData data = new(track);
                     byte[] json = JsonSerializer.SerializeToUtf8Bytes<MetaData>(data);
-                    Messenger.Update(playbackEvent, playing.ProgressMs.Value / 1000.0, json);
+                    Messenger.Update(playbackEvent, (progress + TimeOffset) / 1000.0, json);
                     LastTrack = track;
                     Invoke((MethodInvoker)(() =>
                     {
@@ -133,12 +145,16 @@ namespace TitalyverMessengerForSpotify
                             Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
                             WriteIndented = true
                         };
-                        textBox1.Text = JsonSerializer.Serialize<MetaData>(data, options);
+                        textBox1.Text = JsonSerializer.Serialize<MetaData>(data, options) + $"\nLag:{offset}ms";
                     }));
                 }
                 else
                 {
-                    Messenger.Update(playbackEvent, playing.ProgressMs.Value / 1000.0);
+                    if (TrackStartTimeStamp != playing.Timestamp)
+                    {
+                        TimeOffset = 0;
+                    }
+                    Messenger.Update(playbackEvent, (playing.ProgressMs.Value + TimeOffset) / 1000.0);
                 }
                 return;
             }
@@ -148,6 +164,16 @@ namespace TitalyverMessengerForSpotify
         private void timer1_Tick(object sender, EventArgs e)
         {
             label_Countdown.Text = $"Next:{AutoGetter.RemainMs / 1000.0}";
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            long num = (long)(numericUpDown1.Value * 1000);
+            if (TimeOffset == FirstLagTime)
+            {
+                TimeOffset = num;
+            }
+            FirstLagTime = num;
         }
     }
 }
