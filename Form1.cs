@@ -26,6 +26,7 @@ namespace TitalyverMessengerForSpotify
     {
         private Spotify Spotify = null;
         private MMFMessenger Messenger = new();
+        private WebSocketMessenger WSMessenger = new();
 
         private CurrentPlayingAutoGetter AutoGetter;
 
@@ -45,6 +46,7 @@ namespace TitalyverMessengerForSpotify
                 Close();
                 return;
             }
+            WSMessenger.Initialize();
 
             Spotify = Spotify.Create(false, 60000);
             if (Spotify == null)
@@ -58,6 +60,7 @@ namespace TitalyverMessengerForSpotify
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             Messenger.Terminalize();
+            WSMessenger.Terminalize();
         }
 
 
@@ -97,6 +100,7 @@ namespace TitalyverMessengerForSpotify
                     no_playing = JsonSerializer.SerializeToUtf8Bytes<MetaData>(data);
                 }
                 Messenger.Update(EnumPlaybackEvent.Stop, 0, no_playing);
+                Task<bool> task = WSMessenger.UpdateAsync(EnumPlaybackEvent.Stop, 0, "no_playing", new string[] { "Spotify" }, "", 0);
                 Invoke((MethodInvoker)(() =>
                 {
                     textBox1.Text = "No playing";
@@ -113,9 +117,10 @@ namespace TitalyverMessengerForSpotify
                     ad = JsonSerializer.SerializeToUtf8Bytes<MetaData>(data);
                 }
                 Messenger.Update(EnumPlaybackEvent.SeekStop, 0, ad);
+                Task<bool> task = WSMessenger.UpdateAsync(EnumPlaybackEvent.SeekStop, 0, "ad", new string[] { "Spotify" }, "", 0);
                 Invoke((MethodInvoker)(() =>
                 {
-                    textBox1.Text = "広告再生中 これの再生時間を取る方法なんかないのか？";
+                    textBox1.Text = "広告再生中";
                 }));
                 return;
             }
@@ -136,7 +141,9 @@ namespace TitalyverMessengerForSpotify
 
                     MetaData data = new(track);
                     byte[] json = JsonSerializer.SerializeToUtf8Bytes<MetaData>(data);
-                    Messenger.Update(playbackEvent, (progress + TimeOffset) / 1000.0, json);
+                    double time = (progress + TimeOffset) / 1000.0;
+                    Messenger.Update(playbackEvent, time, json);
+                    Task<bool> task = WSMessenger.UpdateAsync(playbackEvent, time, data.title, data.artists, data.album, data.duration);
                     LastTrack = track;
                     Invoke((MethodInvoker)(() =>
                     {
@@ -154,7 +161,9 @@ namespace TitalyverMessengerForSpotify
                     {
                         TimeOffset = 0;
                     }
-                    Messenger.Update(playbackEvent, (playing.ProgressMs.Value + TimeOffset) / 1000.0);
+                    double time = (playing.ProgressMs.Value + TimeOffset) / 1000.0;
+                    Messenger.Update(playbackEvent,time);
+                    Task<bool> task = WSMessenger.UpdateAsync(playbackEvent, time);
                 }
                 return;
             }
