@@ -30,9 +30,9 @@ namespace TitalyverMessengerForSpotify
             Terminalize();
         }
 
-        public static int GetTimeOfDay()
+        public static int GetUtcTimeOfDay()
         {
-            DateTime now = DateTime.Now;
+            DateTime now = DateTime.UtcNow;
             return ((now.Hour * 60 + now.Minute) * 60 + now.Second) * 1000 + now.Millisecond;
         }
 
@@ -86,7 +86,7 @@ namespace TitalyverMessengerForSpotify
             string json = "{" +
                 "\"event\":" + (int)pbevent + "," +
                 "\"seek\":" + seektime + "," +
-                "\"time\":" + GetTimeOfDay() + "," +
+                "\"time\":" + GetUtcTimeOfDay() + "," +
                 "\"path\":" + "\"\"" + "," +
                 "\"title\":\"" + title + "\"," +
                 "\"artists\":[\"" + string.Join("\",\"", artists) + "\"]," +
@@ -110,7 +110,7 @@ namespace TitalyverMessengerForSpotify
                         string json = "{" +
                             "\"event\":" + (int)pbevent + "," +
                             "\"seek\":" + seektime + "," +
-                            "\"time\":" + GetTimeOfDay() + "," +
+                            "\"time\":" + GetUtcTimeOfDay() + "," +
                             "}";
 
                         byte[] utf8 = Encoding.UTF8.GetBytes(json);
@@ -132,7 +132,7 @@ namespace TitalyverMessengerForSpotify
                 string json = "{" +
                     "\"event\":" + (int)pbevent + "," +
                     "\"seek\":" + seektime + "," +
-                    "\"time\":" + GetTimeOfDay() + "," +
+                    "\"time\":" + GetUtcTimeOfDay() + "," +
                     "\"path\":" + "\"\"" + "," +
                     "\"title\":\"" + Title + "\"," +
                     "\"artists\":[\"" + string.Join("\",\"", Artists) + "\"]," +
